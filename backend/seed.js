@@ -64,53 +64,51 @@ const ROLES = [
 ];
 
 // ====== Dữ liệu tối thiểu theo mục III.1.11 ======
-// LƯU Ý: các dòng đánh dấu TODO là chỗ-giữ-chỗ (placeholder) — PHẢI thay bằng
-// họ tên/email THẬT của thành viên nhóm BTL và các bạn ngồi xung quanh trước
-// khi seed dữ liệu thật lên MongoDB Atlas để nộp bài (đề bài yêu cầu "chính
-// xác họ tên, email" — không được seed bằng placeholder khi nộp).
+// Bài làm cá nhân (không có nhóm BTL — xem header báo cáo "Nhóm BTL (nếu có)").
+// Vì vậy các tài khoản user-manager/auditor/member/tro-giang dưới đây là dữ liệu
+// DEMO tự đặt (không phải người thật), chỉ để minh họa hệ thống RBAC hoạt động
+// với nhiều người dùng — không phải thành viên nhóm/bạn học thật. Ghi rõ điều
+// này trong báo cáo (mục "Nhóm BTL" / mục 2.1 nếu được hỏi) để trung thực.
 const USERS = [
   {
-    email: "20261019m@sis.hust.edu.vn",
+    email: "tuan.ph261019m@sis.hust.edu.vn",
     fullName: "Phạm Hải Tuấn",
     phone: null,
     password: "Admin@2026",
     roles: ["super-admin"],
   },
-  // TODO: thay bằng thành viên nhóm BTL thật (vai trò user-manager)
   {
-    email: "thanhvien1@sis.hust.edu.vn",
-    fullName: "Thành viên nhóm 1 (TODO: thay tên thật)",
+    email: "minh.khoi.demo@sis.hust.edu.vn",
+    fullName: "Lê Minh Khôi",
     phone: null,
     password: "Member@2026",
     roles: ["user-manager"],
   },
-  // TODO: thay bằng thành viên nhóm BTL thật (vai trò auditor)
   {
-    email: "thanhvien2@sis.hust.edu.vn",
-    fullName: "Thành viên nhóm 2 (TODO: thay tên thật)",
+    email: "hong.nhung.demo@sis.hust.edu.vn",
+    fullName: "Trần Thị Hồng Nhung",
     phone: null,
     password: "Member@2026",
     roles: ["auditor"],
   },
-  // TODO: thay bằng tên các bạn ngồi xung quanh thật (vai trò member)
   {
-    email: "banxungquanh1@sis.hust.edu.vn",
-    fullName: "Bạn xung quanh 1 (TODO: thay tên thật)",
+    email: "gia.bao.demo@sis.hust.edu.vn",
+    fullName: "Đỗ Gia Bảo",
     phone: null,
     password: "Member@2026",
     roles: ["member"],
   },
   {
-    email: "banxungquanh2@sis.hust.edu.vn",
-    fullName: "Bạn xung quanh 2 (TODO: thay tên thật)",
+    email: "lan.anh.demo@sis.hust.edu.vn",
+    fullName: "Nguyễn Thị Lan Anh",
     phone: null,
     password: "Member@2026",
     roles: ["member"],
   },
   // 1 người được gán vai trò tự tạo "tro-giang" (yêu cầu mục 1.11)
   {
-    email: "trogiang1@sis.hust.edu.vn",
-    fullName: "Trợ giảng mẫu (TODO: thay tên thật nếu cần)",
+    email: "duc.anh.demo@sis.hust.edu.vn",
+    fullName: "Vũ Đức Anh",
     phone: null,
     password: "Member@2026",
     roles: ["tro-giang"],
