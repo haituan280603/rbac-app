@@ -274,7 +274,8 @@
           width: 95%;
         }
         button {
-          min-height: 36px;
+          min-height: 44px;
+          min-width: 44px;
         }
         .header {
           flex-direction: column;
@@ -1057,7 +1058,6 @@
               <div className="field">
                 <label>Tên vai trò *</label>
                 <input
-                  disabled={isSystem}
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
@@ -1067,7 +1067,6 @@
               <div className="field">
                 <label>Mô tả</label>
                 <input
-                  disabled={isSystem}
                   value={form.description}
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
