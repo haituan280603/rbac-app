@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Người dùng &amp; Phân quyền</title>
+
+    <!-- React CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Arial,
+          sans-serif;
+        background: #f5f6f8;
+        margin: 0;
+        color: #222;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px 16px 60px;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+      }
+      th {
+        background: #fafafa;
+        font-weight: 600;
+      }
+      input,
+      select {
+        padding: 7px 9px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      button {
+        padding: 7px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        margin-right: 4px;
+      }
+      button:hover {
+        background: #f0f0f0;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .muted {
+        color: #666;
+        font-size: 14px;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 2px solid #eee;
+        margin-bottom: 16px;
+      }
+      .tabs button {
+        border: none;
+        background: none;
+        padding: 10px 14px;
+        font-size: 14px;
+        border-radius: 4px 4px 0 0;
+      }
+      .tabs button.active {
+        background: #4caf50;
+        color: #fff;
+      }
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+        align-items: center;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        margin: 2px;
+        border-radius: 10px;
+        font-size: 12px;
+        background: #e3f2fd;
+        color: #1565c0;
+      }
+      .badge.locked {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .badge.active {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+      .badge.system {
+        background: #fff3e0;
+        color: #e65100;
+      }
+      button.primary {
+        background: #4caf50;
+        color: #fff;
+        border-color: #4caf50;
+      }
+      button.danger {
+        background: #e53935;
+        color: #fff;
+        border-color: #e53935;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+        flex-wrap: wrap;
+        font-size: 13px;
+      }
+      .pagination .right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 16px;
+      }
+      .modal-content {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        width: 460px;
+        max-width: 95%;
+        max-height: 90vh;
+        overflow: auto;
+      }
+      .modal-content h3 {
+        margin-top: 0;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .field {
+        margin-bottom: 12px;
+      }
+      .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+      }
+      .field .error {
+        color: #c62828;
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .check {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-weight: normal;
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      fieldset {
+        border: 1px solid #eee;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      legend {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #555;
+        padding: 0 6px;
+      }
+
+      .login {
+        max-width: 320px;
+        margin: 80px auto;
+        background: #fff;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+      .login label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 10px 0 4px;
+      }
+      .login input {
+        width: 100%;
+      }
+      .error {
+        color: #c62828;
+        font-size: 13px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        color: #fff;
+        max-width: 360px;
+        z-index: 100;
+      }
+      .toast.success {
+        background: #2e7d32;
+      }
+      .toast.error {
+        background: #c62828;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      @media (max-width: 768px) {
+        .modal-content {
+          width: 95%;
+        }
+        button {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useCallback, useRef } = React;
+
+      // ============================================================
+      // Cấu hình API — đổi API_BASE để test với mock server của giảng viên
+      // ============================================================
+      const API_BASE = "https://rbac-app-backend-947i.onrender.com/api/v1";
+      // const API_BASE = "http://localhost:3001/api/v1"; // dùng khi chạy local qua Live Server
+      // const API_BASE = "<MOCK_URL>/good/api/v1";
+
+      const TOKEN_KEY = "rbac_token";
+      const getToken = () => sessionStorage.getItem(TOKEN_KEY);
+      const setToken = (t) =>
+        t
+          ? sessionStorage.setItem(TOKEN_KEY, t)
+          : sessionStorage.removeItem(TOKEN_KEY);
+
+      const api = axios.create({ baseURL: API_BASE, timeout: 10000 });
+
+      // Request interceptor: tự gắn Bearer token cho MỌI request
+      api.interceptors.request.use((config) => {
+        const token = getToken();
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      });
+
+      // Response interceptor: chuẩn hóa lỗi + xử lý 401 tập trung
+      api.interceptors.response.use(
+        (res) => res,
+        (error) => {
+          if (!error.response) {
+            return Promise.reject({
+              status: 0,
+              code: "NETWORK_ERROR",
+              details: [],
+              message:
+                error.code === "ECONNABORTED"
+                  ? "Máy chủ phản hồi quá lâu."
+                  : "Không kết nối được máy chủ (kiểm tra server, mạng hoặc CORS).",
+            });
+          }
+          const { status, data } = error.response;
+          const err = {
+            status,
+            code: data?.error?.code || `HTTP_${status}`,
+            message: data?.error?.message || `Lỗi ${status}`,
+            details: data?.error?.details || [],
+          };
+          if (status === 401 && !error.config.url.endsWith("/auth/tokens")) {
+            setToken(null);
+            window.dispatchEvent(new Event("auth:expired"));
+          }
+          return Promise.reject(err);
+        },
+      );
+
+      const can = (me, perm) => !!me && me.permissions.includes(perm);
+      const sameId = (a, b) => String(a) === String(b);
+
+      // ============================================================
+      // SearchBar — debounce 400ms
+      // ============================================================
+      function SearchBar({ onSearch }) {
+        const [input, setInput] = useState("");
+        useEffect(() => {
+          const timer = setTimeout(() => onSearch(input), 400);
+          return () => clearTimeout(timer);
+        }, [input]);
+        return (
+          <input
+            placeholder="Tìm theo họ tên, email (tối thiểu 2 ký tự)…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+        );
+      }
+
+      // ============================================================
+      // Pagination
+      // ============================================================
+      function Pagination({ meta, limit, onPageChange, onLimitChange }) {
+        return (
+          <div className="pagination">
+            <div>
+              Hiển thị:{" "}
+              <select
+                value={limit}
+                onChange={(e) => onLimitChange(Number(e.target.value))}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>{" "}
+              dòng/trang · Tổng {meta.totalItems}
+            </div>
+            <div className="right">
+              <button
+                disabled={meta.page <= 1}
+                onClick={() => onPageChange(meta.page - 1)}
+              >
+                ‹ Prev
+              </button>
+              <span>
+                Trang {meta.page}/{meta.totalPages}
+              </span>
+              <button
+                disabled={meta.page >= meta.totalPages}
+                onClick={() => onPageChange(meta.page + 1)}
+              >
+                Next ›
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // UserTable
+      // ============================================================
+      function UserTable({
+        users,
+        me,
+        offset,
+        onEdit,
+        onAssign,
+        onToggleLock,
+        onDelete,
+      }) {
+        return (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Họ tên</th>
+                  <th>Email</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center" }}>
+                      Không có dữ liệu
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((u, i) => {
+                    const isSelf = sameId(u.id, me.id);
+                    return (
+                      <tr key={u.id}>
+                        <td>{offset + i + 1}</td>
+                        <td>
+                          {u.fullName}
+                          {isSelf && " (bạn)"}
+                        </td>
+                        <td>{u.email}</td>
+                        <td>
+                          {u.roles.map((r) => (
+                            <span key={r.id} className="badge">
+                              {r.name}
+                            </span>
+                          ))}
+                        </td>
+                        <td>
+                          <span className={`badge ${u.status}`}>
+                            {u.status === "locked" ? "Đã khóa" : "Hoạt động"}
+                          </span>
+                        </td>
+                        <td>
+                          {can(me, "users:update") && (
+                            <button onClick={() => onEdit(u)}>Sửa</button>
+                          )}
+                          {can(me, "roles:assign") && can(me, "roles:read") && (
+                            <button onClick={() => onAssign(u)}>Vai trò</button>
+                          )}
+                          {can(me, "users:update") && (
+                            <button
+                              disabled={isSelf}
+                              onClick={() => onToggleLock(u)}
+                            >
+                              {u.status === "locked" ? "Mở khóa" : "Khóa"}
+                            </button>
+                          )}
+                          {can(me, "users:delete") && (
+                            <button
+                              className="danger"
+                              disabled={isSelf}
+                              onClick={() => onDelete(u)}
+                            >
+                              Xóa
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // UserModal — Thêm / Sửa người dùng
+      // ============================================================
+      const PASSWORD_RE = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+      const PHONE_RE = /^\+[1-9]\d{7,14}$/;
+
+      function UserModal({ user, roles, me, notify, onClose, onSaved }) {
+        const isNew = !user;
+        const [form, setForm] = useState({
+          email: user?.email || "",
+          fullName: user?.fullName || "",
+          phone: user?.phone || "",
+          password: "",
+          roleIds: [],
+        });
+        const [errors, setErrors] = useState({});
+        const [saving, setSaving] = useState(false);
+
+        const validate = () => {
+          const e = {};
+          if (!/^\S+@\S+\.\S+$/.test(form.email.trim()))
+            e.email = "Email không hợp lệ";
+          if (form.fullName.trim().length < 2)
+            e.fullName = "Họ tên phải có ít nhất 2 ký tự";
+          if (form.phone.trim() && !PHONE_RE.test(form.phone.trim()))
+            e.phone = "Số điện thoại phải dạng +84912345678";
+          if (isNew) {
+            if (!PASSWORD_RE.test(form.password))
+              e.password =
+                "Mật khẩu tối thiểu 8 ký tự, có chữ hoa, chữ số và ký tự đặc biệt";
+          }
+          setErrors(e);
+          return Object.keys(e).length === 0;
+        };
+
+        const handleSubmit = async () => {
+          if (!validate()) return;
+          const clean = {
+            email: form.email.trim().toLowerCase(),
+            fullName: form.fullName.trim(),
+            phone: form.phone.trim() || null,
+          };
+          setSaving(true);
+          try {
+            if (isNew) {
+              const payload = { ...clean, password: form.password };
+              if (form.roleIds.length) payload.roleIds = form.roleIds;
+              await api.post("/users", payload);
+            } else {
+              const changed = Object.fromEntries(
+                Object.entries(clean).filter(
+                  ([k, v]) => v !== (user[k] ?? null),
+                ),
+              );
+              if (Object.keys(changed).length)
+                await api.patch(`/users/${user.id}`, changed);
+            }
+            notify(
+              "success",
+              isNew
+                ? "Tạo người dùng thành công."
+                : "Cập nhật người dùng thành công.",
+            );
+            onSaved();
+          } catch (err) {
+            const fieldErrors = {};
+            (err.details || []).forEach((d) => {
+              if (d.field) fieldErrors[d.field] = d.message;
+            });
+            if (err.code === "EMAIL_ALREADY_EXISTS")
+              fieldErrors.email = err.message;
+            setErrors(fieldErrors);
+            if (!Object.keys(fieldErrors).length) notify("error", err.message);
+          } finally {
+            setSaving(false);
+          }
+        };
+
+        const canAssignOnCreate = isNew && can(me, "roles:assign");
+
+        return (
+          <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>{isNew ? "Thêm người dùng" : "Sửa người dùng"}</h3>
+
+              <div className="field">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+                {errors.email && <div className="error">{errors.email}</div>}
+              </div>
+
+              <div className="field">
+                <label>Họ tên *</label>
+                <input
+                  value={form.fullName}
+                  onChange={(e) =>
+                    setForm({ ...form, fullName: e.target.value })
+                  }
+                />
+                {errors.fullName && (
+                  <div className="error">{errors.fullName}</div>
+                )}
+              </div>
+
+              <div className="field">
+                <label>Số điện thoại</label>
+                <input
+                  placeholder="+84912345678"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+                {errors.phone && <div className="error">{errors.phone}</div>}
+              </div>
+
+              {isNew && (
+                <div className="field">
+                  <label>Mật khẩu *</label>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                  />
+                  {errors.password && (
+                    <div className="error">{errors.password}</div>
+                  )}
+                </div>
+              )}
+
+              {canAssignOnCreate && (
+                <div className="field">
+                  <label>Vai trò (mặc định member nếu không chọn)</label>
+                  {roles.map((r) => {
+                    const missing = r.permissions.filter(
+                      (p) => !me.permissions.includes(p),
+                    );
+                    const checked = form.roleIds.includes(r.id);
+                    return (
+                      <label key={r.id} className="check">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={missing.length > 0}
+                          onChange={() =>
+                            setForm({
+                              ...form,
+                              roleIds: checked
+                                ? form.roleIds.filter((x) => x !== r.id)
+                                : [...form.roleIds, r.id],
+                            })
+                          }
+                        />
+                        <span>
+                          {r.name}
+                          {missing.length > 0 && (
+                            <span className="muted"> — vượt quyền của bạn</span>
+                          )}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  className="primary"
+                  disabled={saving}
+                  onClick={handleSubmit}
+                >
+                  {saving ? "Đang lưu…" : "Lưu"}
+                </button>
+                <button onClick={onClose}>Hủy</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // RoleAssignModal — gán / gỡ vai trò (Promise.allSettled)
+      // ============================================================
+      function RoleAssignModal({ user, roles, me, notify, onClose, onSaved }) {
+        const initial = user.roles.map((r) => String(r.id));
+        const [selected, setSelected] = useState(initial);
+        const [saving, setSaving] = useState(false);
+        const isSelf = sameId(user.id, me.id);
+
+        const toggle = (id) =>
+          setSelected(
+            selected.includes(id)
+              ? selected.filter((x) => x !== id)
+              : [...selected, id],
+          );
+
+        const handleSave = async () => {
+          const toAdd = selected.filter((id) => !initial.includes(id));
+          const toRemove = initial.filter((id) => !selected.includes(id));
+          const ops = [
+            ...toAdd.map((id) => ({
+              id,
+              action: "gán",
+              run: () => api.put(`/users/${user.id}/roles/${id}`),
+            })),
+            ...toRemove.map((id) => ({
+              id,
+              action: "gỡ",
+              run: () => api.delete(`/users/${user.id}/roles/${id}`),
+            })),
+          ];
+          if (!ops.length) return onClose();
+
+          setSaving(true);
+          const results = await Promise.allSettled(ops.map((op) => op.run()));
+          setSaving(false);
+
+          const failed = results
+            .map((r, i) => ({ r, op: ops[i] }))
+            .filter(({ r }) => r.status === "rejected")
+            .map(
+              ({ r, op }) =>
+                `Không thể ${op.action} "${roles.find((x) => sameId(x.id, op.id))?.name}": ${r.reason.message}`,
+            );
+          if (failed.length) notify("error", failed.join(" "));
+          else notify("success", `Đã cập nhật vai trò cho ${user.fullName}.`);
+          onSaved();
+        };
+
+        return (
+          <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>Vai trò của {user.fullName}</h3>
+              {roles.map((r) => {
+                const id = String(r.id);
+                const missing = r.permissions.filter(
+                  (p) => !me.permissions.includes(p),
+                );
+                const lockedSelf = isSelf && initial.includes(id);
+                return (
+                  <label key={id} className="check">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(id)}
+                      disabled={missing.length > 0 || lockedSelf}
+                      onChange={() => toggle(id)}
+                    />
+                    <span>
+                      <b>{r.name}</b>{" "}
+                      <span className="muted">
+                        ({r.code}, {r.permissions.length} quyền)
+                      </span>
+                      {missing.length > 0 && (
+                        <span className="muted"> — vượt quyền của bạn</span>
+                      )}
+                      {lockedSelf && (
+                        <span className="muted"> — không thể tự gỡ</span>
+                      )}
+                    </span>
+                  </label>
+                );
+              })}
+              <div className="modal-actions">
+                <button
+                  className="primary"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? "Đang lưu…" : "Lưu"}
+                </button>
+                <button onClick={onClose}>Hủy</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // UsersPage
+      // ============================================================
+      function UsersPage({ me, notify, reloadMe }) {
+        const [users, setUsers] = useState([]);
+        const [meta, setMeta] = useState({
+          page: 1,
+          limit: 10,
+          totalItems: 0,
+          totalPages: 1,
+        });
+        const [page, setPage] = useState(1);
+        const [limit, setLimit] = useState(10);
+        const [search, setSearch] = useState("");
+        const [status, setStatus] = useState("");
+        const [roleId, setRoleId] = useState("");
+        const [roles, setRoles] = useState([]);
+        const [editing, setEditing] = useState(undefined);
+        const [assigning, setAssigning] = useState(null);
+
+        const handleError = useCallback(
+          (err) => {
+            notify("error", err.message);
+            if (err.status === 403) reloadMe();
+          },
+          [notify, reloadMe],
+        );
+
+        const fetchUsers = useCallback(async () => {
+          const params = { page, limit, sort: "-createdAt" };
+          if (search.trim().length >= 2) params.q = search.trim();
+          if (status) params.status = status;
+          if (roleId) params.roleId = roleId;
+          try {
+            const { data } = await api.get("/users", { params });
+            setUsers(data.data);
+            setMeta(data.meta);
+            if (page > data.meta.totalPages) setPage(data.meta.totalPages);
+          } catch (err) {
+            handleError(err);
+          }
+        }, [page, limit, search, status, roleId, handleError]);
+
+        useEffect(() => {
+          fetchUsers();
+        }, [fetchUsers]);
+
+        useEffect(() => {
+          if (!can(me, "roles:read")) return;
+          (async () => {
+            try {
+              const { data } = await api.get("/roles", {
+                params: { limit: 100 },
+              });
+              setRoles(data.data);
+            } catch (err) {
+              handleError(err);
+            }
+          })();
+        }, [me, handleError]);
+
+        const changeFilter = (setter) => (value) => {
+          setter(value);
+          setPage(1);
+        };
+
+        const toggleLock = async (user) => {
+          try {
+            await api.patch(`/users/${user.id}`, {
+              status: user.status === "locked" ? "active" : "locked",
+            });
+            notify(
+              "success",
+              user.status === "locked" ? "Đã mở khóa." : "Đã khóa.",
+            );
+            fetchUsers();
+          } catch (err) {
+            handleError(err);
+          }
+        };
+
+        const deleteUser = async (user) => {
+          if (!window.confirm(`Bạn có chắc muốn xóa "${user.fullName}"?`))
+            return;
+          try {
+            await api.delete(`/users/${user.id}`);
+            notify("success", "Đã xóa người dùng.");
+            fetchUsers();
+          } catch (err) {
+            handleError(err);
+          }
+        };
+
+        return (
+          <div>
+            <div className="toolbar">
+              <SearchBar onSearch={changeFilter(setSearch)} />
+              <select
+                value={status}
+                onChange={(e) => changeFilter(setStatus)(e.target.value)}
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Hoạt động</option>
+                <option value="locked">Đã khóa</option>
+              </select>
+              {can(me, "roles:read") && (
+                <select
+                  value={roleId}
+                  onChange={(e) => changeFilter(setRoleId)(e.target.value)}
+                >
+                  <option value="">Tất cả vai trò</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {can(me, "users:create") && (
+                <button className="primary" onClick={() => setEditing(null)}>
+                  + Thêm người dùng
+                </button>
+              )}
+            </div>
+
+            <UserTable
+              users={users}
+              me={me}
+              offset={(meta.page - 1) * meta.limit}
+              onEdit={setEditing}
+              onAssign={setAssigning}
+              onToggleLock={toggleLock}
+              onDelete={deleteUser}
+            />
+
+            <Pagination
+              meta={meta}
+              limit={limit}
+              onPageChange={setPage}
+              onLimitChange={changeFilter(setLimit)}
+            />
+
+            {editing !== undefined && (
+              <UserModal
+                user={editing}
+                roles={roles}
+                me={me}
+                notify={notify}
+                onClose={() => setEditing(undefined)}
+                onSaved={() => {
+                  setEditing(undefined);
+                  fetchUsers();
+                }}
+              />
+            )}
+
+            {assigning && (
+              <RoleAssignModal
+                user={assigning}
+                roles={roles}
+                me={me}
+                notify={notify}
+                onClose={() => setAssigning(null)}
+                onSaved={() => {
+                  setAssigning(null);
+                  fetchUsers();
+                }}
+              />
+            )}
+          </div>
+        );
+      }
+
+      // ============================================================
+      // RoleModal — Thêm / Sửa vai trò
+      // ============================================================
+      function RoleModal({ role, permissions, me, notify, onClose, onSaved }) {
+        const isNew = !role;
+        const [form, setForm] = useState({
+          code: role?.code || "",
+          name: role?.name || "",
+          description: role?.description || "",
+          permissions: role?.permissions || [],
+        });
+        const [errors, setErrors] = useState({});
+        const [saving, setSaving] = useState(false);
+
+        // Nhóm danh mục quyền theo resource: { users: [...], roles: [...], permissions: [...] }
+        const groups = permissions.reduce(
+          (acc, p) => ({
+            ...acc,
+            [p.resource]: [...(acc[p.resource] || []), p],
+          }),
+          {},
+        );
+
+        const validate = () => {
+          const e = {};
+          if (isNew && !/^[a-z][a-z0-9-]{2,49}$/.test(form.code.trim()))
+            e.code = "Mã: chữ thường/số/gạch nối, bắt đầu bằng chữ, 3-50 ký tự";
+          if (form.name.trim().length < 2)
+            e.name = "Tên phải có ít nhất 2 ký tự";
+          setErrors(e);
+          return Object.keys(e).length === 0;
+        };
+
+        const togglePerm = (code) =>
+          setForm((f) => ({
+            ...f,
+            permissions: f.permissions.includes(code)
+              ? f.permissions.filter((p) => p !== code)
+              : [...f.permissions, code],
+          }));
+
+        const handleSubmit = async () => {
+          if (!validate()) return;
+          setSaving(true);
+          try {
+            if (isNew) {
+              await api.post("/roles", {
+                code: form.code.trim(),
+                name: form.name.trim(),
+                description: form.description.trim() || null,
+                permissions: form.permissions,
+              });
+            } else {
+              if (
+                form.name.trim() !== role.name ||
+                form.description !== (role.description || "")
+              ) {
+                await api.patch(`/roles/${role.id}`, {
+                  name: form.name.trim(),
+                  description: form.description.trim() || null,
+                });
+              }
+              const changed =
+                form.permissions.length !== role.permissions.length ||
+                form.permissions.some((p) => !role.permissions.includes(p));
+              if (!role.isSystem && changed) {
+                await api.put(`/roles/${role.id}/permissions`, {
+                  permissions: form.permissions,
+                });
+              }
+            }
+            notify(
+              "success",
+              isNew
+                ? "Tạo vai trò thành công."
+                : "Cập nhật vai trò thành công.",
+            );
+            onSaved();
+          } catch (err) {
+            const fieldErrors = {};
+            (err.details || []).forEach((d) => {
+              if (d.field) fieldErrors[d.field] = d.message;
+            });
+            if (err.code === "ROLE_CODE_EXISTS") fieldErrors.code = err.message;
+            setErrors(fieldErrors);
+            if (!Object.keys(fieldErrors).length) notify("error", err.message);
+          } finally {
+            setSaving(false);
+          }
+        };
+
+        const isSystem = role?.isSystem;
+
+        return (
+          <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>{isNew ? "Thêm vai trò" : "Sửa vai trò"}</h3>
+
+              {isNew && (
+                <div className="field">
+                  <label>Mã vai trò *</label>
+                  <input
+                    value={form.code}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  />
+                  {errors.code && <div className="error">{errors.code}</div>}
+                </div>
+              )}
+
+              <div className="field">
+                <label>Tên vai trò *</label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+                {errors.name && <div className="error">{errors.name}</div>}
+              </div>
+
+              <div className="field">
+                <label>Mô tả</label>
+                <input
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="field">
+                <label>Quyền</label>
+                {Object.entries(groups).map(([resource, perms]) => (
+                  <fieldset key={resource}>
+                    <legend>{resource}</legend>
+                    {perms.map((p) => {
+                      const missing = !me.permissions.includes(p.code);
+                      return (
+                        <label key={p.code} className="check">
+                          <input
+                            type="checkbox"
+                            checked={form.permissions.includes(p.code)}
+                            disabled={isSystem || missing}
+                            onChange={() => togglePerm(p.code)}
+                          />
+                          <span>
+                            {p.code}
+                            {missing && (
+                              <span className="muted">
+                                {" "}
+                                — bạn không có quyền này
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </fieldset>
+                ))}
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="primary"
+                  disabled={saving}
+                  onClick={handleSubmit}
+                >
+                  {saving ? "Đang lưu…" : "Lưu"}
+                </button>
+                <button onClick={onClose}>Hủy</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // RolesPage
+      // ============================================================
+      function RolesPage({ me, notify, reloadMe }) {
+        const [roles, setRoles] = useState([]);
+        const [permissions, setPermissions] = useState([]);
+        const [editing, setEditing] = useState(undefined);
+
+        const handleError = useCallback(
+          (err) => {
+            notify("error", err.message);
+            if (err.status === 403) reloadMe();
+          },
+          [notify, reloadMe],
+        );
+
+        const fetchRoles = useCallback(async () => {
+          try {
+            const { data } = await api.get("/roles", {
+              params: { limit: 100 },
+            });
+            setRoles(data.data);
+          } catch (err) {
+            handleError(err);
+          }
+        }, [handleError]);
+
+        useEffect(() => {
+          fetchRoles();
+        }, [fetchRoles]);
+
+        useEffect(() => {
+          if (!can(me, "permissions:read")) return;
+          (async () => {
+            try {
+              const { data } = await api.get("/permissions");
+              setPermissions(data.data);
+            } catch (err) {
+              handleError(err);
+            }
+          })();
+        }, [me, handleError]);
+
+        const deleteRole = async (role) => {
+          if (!window.confirm(`Xóa vai trò "${role.name}"?`)) return;
+          try {
+            await api.delete(`/roles/${role.id}`);
+            notify("success", "Đã xóa vai trò.");
+            fetchRoles();
+          } catch (err) {
+            handleError(err);
+          }
+        };
+
+        return (
+          <div>
+            <div className="toolbar">
+              {can(me, "roles:create") && (
+                <button className="primary" onClick={() => setEditing(null)}>
+                  + Thêm vai trò
+                </button>
+              )}
+            </div>
+
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã</th>
+                    <th>Tên</th>
+                    <th>Quyền</th>
+                    <th>Người dùng</th>
+                    <th>Loại</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roles.map((r) => (
+                    <tr key={r.id}>
+                      <td>{r.code}</td>
+                      <td>
+                        {r.name}
+                        {r.description && (
+                          <div className="muted">{r.description}</div>
+                        )}
+                      </td>
+                      <td>
+                        {r.permissions.slice(0, 3).map((p) => (
+                          <span key={p} className="badge">
+                            {p}
+                          </span>
+                        ))}
+                        {r.permissions.length > 3 && (
+                          <span className="muted">
+                            +{r.permissions.length - 3}
+                          </span>
+                        )}
+                      </td>
+                      <td>{r.userCount}</td>
+                      <td>
+                        <span className={`badge ${r.isSystem ? "system" : ""}`}>
+                          {r.isSystem ? "Hệ thống" : "Tùy chỉnh"}
+                        </span>
+                      </td>
+                      <td>
+                        {can(me, "roles:update") && (
+                          <button onClick={() => setEditing(r)}>Sửa</button>
+                        )}
+                        {can(me, "roles:delete") && !r.isSystem && (
+                          <button
+                            className="danger"
+                            onClick={() => deleteRole(r)}
+                          >
+                            Xóa
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {editing !== undefined && (
+              <RoleModal
+                role={editing}
+                permissions={permissions}
+                me={me}
+                notify={notify}
+                onClose={() => setEditing(undefined)}
+                onSaved={() => {
+                  setEditing(undefined);
+                  fetchRoles();
+                  reloadMe(); // vai trò của chính mình có thể vừa đổi quyền
+                }}
+              />
+            )}
+          </div>
+        );
+      }
+
+      // ============================================================
+      // MyProfile
+      // ============================================================
+      function MyProfile({ me }) {
+        return (
+          <div>
+            <h2>Hồ sơ của tôi</h2>
+            <p>
+              <b>Họ tên:</b> {me.fullName}
+            </p>
+            <p>
+              <b>Email:</b> {me.email}
+            </p>
+            <p>
+              <b>Số điện thoại:</b> {me.phone || "—"}
+            </p>
+            <p>
+              <b>Vai trò:</b>{" "}
+              {me.roles.map((r) => (
+                <span key={r.id} className="badge">
+                  {r.name}
+                </span>
+              ))}
+            </p>
+            <p>
+              <b>Quyền hiệu lực:</b>
+            </p>
+            <div>
+              {me.permissions.length === 0 ? (
+                <span className="muted">Không có quyền nào.</span>
+              ) : (
+                me.permissions.map((p) => (
+                  <span key={p} className="badge">
+                    {p}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // LoginPage
+      // ============================================================
+      function LoginPage({ onLoggedIn }) {
+        const [form, setForm] = useState({ email: "", password: "" });
+        const [error, setError] = useState("");
+        const [loading, setLoading] = useState(false);
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          if (!form.email.trim() || !form.password)
+            return setError("Vui lòng nhập email và mật khẩu.");
+          setLoading(true);
+          setError("");
+          try {
+            const { data } = await api.post("/auth/tokens", {
+              grantType: "password",
+              email: form.email.trim(),
+              password: form.password,
+            });
+            setToken(data.accessToken);
+            await onLoggedIn();
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return (
+          <form className="login" onSubmit={handleSubmit}>
+            <h1>Đăng nhập</h1>
+            <label>Email</label>
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <label>Mật khẩu</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+            {error && <p className="error">{error}</p>}
+            <div className="modal-actions">
+              <button className="primary" type="submit" disabled={loading}>
+                {loading ? "Đang đăng nhập…" : "Đăng nhập"}
+              </button>
+            </div>
+          </form>
+        );
+      }
+
+      // ============================================================
+      // App
+      // ============================================================
+      function App() {
+        const [me, setMe] = useState(null);
+        const [checking, setChecking] = useState(!!getToken());
+        const [tab, setTab] = useState("users");
+        const [toast, setToast] = useState(null);
+        const toastTimer = useRef(null);
+
+        const notify = useCallback((type, text) => {
+          setToast({ type, text });
+          clearTimeout(toastTimer.current);
+          toastTimer.current = setTimeout(() => setToast(null), 4000);
+        }, []);
+
+        const loadMe = useCallback(async () => {
+          const { data } = await api.get("/me");
+          setMe(data);
+          return data;
+        }, []);
+
+        useEffect(() => {
+          if (!getToken()) return;
+          loadMe()
+            .catch(() => {})
+            .finally(() => setChecking(false));
+        }, [loadMe]);
+
+        useEffect(() => {
+          const onExpired = () => {
+            setMe(null);
+            notify(
+              "error",
+              "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+            );
+          };
+          window.addEventListener("auth:expired", onExpired);
+          return () => window.removeEventListener("auth:expired", onExpired);
+        }, [notify]);
+
+        const logout = () => {
+          setToken(null);
+          setMe(null);
+        };
+
+        if (checking) return <div className="container">Đang tải…</div>;
+
+        const tabs = [
+          can(me, "users:read") && { key: "users", label: "Người dùng" },
+          can(me, "roles:read") && { key: "roles", label: "Vai trò" },
+          me && { key: "me", label: "Hồ sơ của tôi" },
+        ].filter(Boolean);
+        const current = tabs.some((t) => t.key === tab) ? tab : tabs[0]?.key;
+
+        return (
+          <div className="container">
+            {!me ? (
+              <LoginPage onLoggedIn={loadMe} />
+            ) : (
+              <>
+                <div className="header">
+                  <div>
+                    <h1>Quản lý Người dùng &amp; Phân quyền</h1>
+                    <div className="muted">
+                      {me.fullName} ({me.email}) ·{" "}
+                      {me.roles.map((r) => (
+                        <span key={r.id} className="badge">
+                          {r.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={logout}>Đăng xuất</button>
+                </div>
+                <div className="tabs">
+                  {tabs.map((t) => (
+                    <button
+                      key={t.key}
+                      className={current === t.key ? "active" : ""}
+                      onClick={() => setTab(t.key)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {current === "users" && (
+                  <UsersPage me={me} notify={notify} reloadMe={loadMe} />
+                )}
+                {current === "roles" && (
+                  <RolesPage me={me} notify={notify} reloadMe={loadMe} />
+                )}
+                {current === "me" && <MyProfile me={me} />}
+              </>
+            )}
+            {toast && <div className={`toast ${toast.type}`}>{toast.text}</div>}
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
