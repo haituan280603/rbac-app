@@ -5,14 +5,17 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3001/api/v1" },
-    { "key": "emailSuperAdmin", "value": "20261019m@sis.hust.edu.vn" },
+    {
+      "key": "baseUrl",
+      "value": "https://rbac-app-backend-947i.onrender.com/api/v1"
+    },
+    { "key": "emailSuperAdmin", "value": "tuan.ph261019m@sis.hust.edu.vn" },
     { "key": "passwordSuperAdmin", "value": "Admin@2026" },
-    { "key": "emailUserManager", "value": "thanhvien1@sis.hust.edu.vn" },
+    { "key": "emailUserManager", "value": "minh.khoi.demo@sis.hust.edu.vn" },
     { "key": "passwordUserManager", "value": "Member@2026" },
-    { "key": "emailAuditor", "value": "thanhvien2@sis.hust.edu.vn" },
+    { "key": "emailAuditor", "value": "hong.nhung.demo@sis.hust.edu.vn" },
     { "key": "passwordAuditor", "value": "Member@2026" },
-    { "key": "emailMember", "value": "banxungquanh1@sis.hust.edu.vn" },
+    { "key": "emailMember", "value": "gia.bao.demo@sis.hust.edu.vn" },
     { "key": "passwordMember", "value": "Member@2026" },
     { "key": "tokenSuperAdmin", "value": "" },
     { "key": "tokenUserManager", "value": "" },
