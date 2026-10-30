@@ -722,10 +722,18 @@
             "url": "{{baseUrl}}/roles",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"code\": \"demo-in-use\",\n  \"name\": \"Demo In Use\",\n  \"permissions\": []\n}"
+              "raw": "{\n  \"code\": \"{{demoRoleCode}}\",\n  \"name\": \"Demo In Use\",\n  \"permissions\": []\n}"
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('demoRoleCode', 'demo-in-use-' + Date.now());"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
