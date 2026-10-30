@@ -115,6 +115,40 @@ const USERS = [
   },
 ];
 
+// ====== Tài khoản riêng cho giảng viên kiểm tra (mục 1.2) ======
+// Tách biệt hoàn toàn với tài khoản demo ở trên — không dùng mật khẩu cá nhân,
+// không xóa/khóa/đổi mật khẩu các tài khoản này cho đến khi có điểm.
+const GRADER_USERS = [
+  {
+    email: "gv.admin@sis.hust.edu.vn",
+    fullName: "Giảng viên - Quản trị viên tối cao",
+    phone: null,
+    password: "Grader@2026",
+    roles: ["super-admin"],
+  },
+  {
+    email: "gv.manager@sis.hust.edu.vn",
+    fullName: "Giảng viên - Quản lý người dùng",
+    phone: null,
+    password: "Grader@2026",
+    roles: ["user-manager"],
+  },
+  {
+    email: "gv.auditor@sis.hust.edu.vn",
+    fullName: "Giảng viên - Kiểm toán viên",
+    phone: null,
+    password: "Grader@2026",
+    roles: ["auditor"],
+  },
+  {
+    email: "gv.member@sis.hust.edu.vn",
+    fullName: "Giảng viên - Thành viên",
+    phone: null,
+    password: "Grader@2026",
+    roles: ["member"],
+  },
+];
+
 (async () => {
   await mongoose.connect(process.env.MONGODB_URI);
   await Promise.all([
@@ -128,7 +162,8 @@ const USERS = [
   const roles = await Role.insertMany(ROLES);
   const roleId = Object.fromEntries(roles.map((r) => [r.code, r._id]));
 
-  for (const u of USERS) {
+  const allUsers = [...USERS, ...GRADER_USERS];
+  for (const u of allUsers) {
     await User.create({
       email: u.email,
       fullName: u.fullName,
@@ -139,7 +174,7 @@ const USERS = [
   }
 
   console.log(
-    `Đã tạo ${PERMISSIONS.length} quyền, ${roles.length} vai trò, ${USERS.length} người dùng.`,
+    `Đã tạo ${PERMISSIONS.length} quyền, ${roles.length} vai trò, ${allUsers.length} người dùng.`,
   );
   await mongoose.disconnect();
 })();
