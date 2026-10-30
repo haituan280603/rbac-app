@@ -138,12 +138,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "const data = pm.response.json().data;",
-                  "const find = (code) => (data.find(r => r.code === code) || {}).id || '';",
-                  "pm.collectionVariables.set('roleIdSuperAdmin', find('super-admin'));",
-                  "pm.collectionVariables.set('roleIdUserManager', find('user-manager'));",
-                  "pm.collectionVariables.set('roleIdAuditor', find('auditor'));",
-                  "pm.collectionVariables.set('roleIdMember', find('member'));",
+                  "(function () {",
+                  "  var data = pm.response.json().data;",
+                  "  var find = function (code) { return (data.find(function (r) { return r.code === code; }) || {}).id || ''; };",
+                  "  pm.collectionVariables.set('roleIdSuperAdmin', find('super-admin'));",
+                  "  pm.collectionVariables.set('roleIdUserManager', find('user-manager'));",
+                  "  pm.collectionVariables.set('roleIdAuditor', find('auditor'));",
+                  "  pm.collectionVariables.set('roleIdMember', find('member'));",
+                  "})();",
                   "pm.test('200', () => pm.response.to.have.status(200));"
                 ]
               }
@@ -572,6 +574,26 @@
               "script": {
                 "exec": [
                   "pm.test('403 - quyen bi thu hoi ngay (BR-07)', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T15c Don dep: cap lai role user-manager cho tai khoan demo (de T06+ va cac man hinh khac chay lai duoc)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenSuperAdmin}}" }
+            ],
+            "url": "{{baseUrl}}/users/{{selfId}}/roles/{{roleIdUserManager}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('204 - da cap lai role user-manager', () => pm.response.to.have.status(204));"
                 ]
               }
             }
