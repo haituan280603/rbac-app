@@ -273,10 +273,18 @@
             "url": "{{baseUrl}}/users",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"postman.test.user@sis.hust.edu.vn\",\n  \"fullName\": \"Postman Test User\",\n  \"password\": \"Postman@2026\"\n}"
+              "raw": "{\n  \"email\": \"{{newUserEmail}}\",\n  \"fullName\": \"Postman Test User\",\n  \"password\": \"Postman@2026\"\n}"
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('newUserEmail', 'postman.test.user+' + Date.now() + '@sis.hust.edu.vn');"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -303,7 +311,7 @@
             "url": "{{baseUrl}}/users",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"postman.test.user@sis.hust.edu.vn\",\n  \"fullName\": \"Trung Email\",\n  \"password\": \"Postman@2026\"\n}"
+              "raw": "{\n  \"email\": \"{{newUserEmail}}\",\n  \"fullName\": \"Trung Email\",\n  \"password\": \"Postman@2026\"\n}"
             }
           },
           "event": [
